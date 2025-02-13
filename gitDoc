@@ -1,0 +1,32 @@
+Make branch 
+	git branch BranchName
+
+Checkout Branch(move to )
+	git checkout BranchName
+
+Push My code to git
+	git add .
+	git commit -m "messsage"
+	git push origin BranchName
+
+//You can merge by go to github or enter your branch and click on contribute button to create pull request 
+	or
+// by command
+	git checkout main
+	git pull origin main
+	git merge dev-hasnain (my own BranchName)
+	git push origin main
+
+//other developes chnages get by command or also get by zip (main)
+
+	git rebase origin/main
+or
+	git fetch origin
+	git merge origin/main
+
+//Set Global Git Username & Email
+git config --global user.name "your-username"
+git config --global user.email "your-email@example.com"
+
+// and check 
+git config --global user.name
