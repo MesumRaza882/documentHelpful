@@ -1,0 +1,109 @@
+------------------------------------------------------------------LifyCycle of Laravel---------------------------------------------------------
+1-index.php inside public(file directly run nahi hoti, balki yeh web server (Apache, Nginx) ke through request handle karti hai.)
+2-vendor/autoload.php
+	Yeh Composer ke zariye generate hoti hai aur application ko automatic tor par PHP classes, Services, (controllers, models, aur 
+	doosray components(Services for email,gateway), Helpers, event listeners jobs quesus etc)
+	ko dhoondhne aur load karne mein madad deti hai. Yeh file composer.json mein diye gaye third-party libraries aur packages ko bhi load karti hai,
+	taake wo application ke har hisse mein available ho sakein bina unko manually include kiye.
+3-bootstrap/app.php
+	Yeh file Laravel application ko start karti hai.
+	Isme zaroori services jaise routing, database connection, aur middleware set up hotay hain.
+		Middleware and Routing
+			request ko process karne ke liye middleware ko set up karti hai. 
+			Jab user koi request bhejta hai, woh pehle middleware ke through jata hai, 
+			jo us request ko check karta hai (jaise authentication, size check, maintenance mode). 
+			Agar sab kuch theek hota hai, toh request ko process kar diya jata hai aur response diya jata hai.
+	Yeh application ke environment ko configure karti hai, jaise .env file se settings ko load karna.
+	user ki request ko respond krne k lie ready krna
+
+4-Request ko route kiya jata hai, jo controller ya closure se match hota hai.
+5-Controller business logic ko process karta hai aur zarurat par models se database se data laata hai.
+6-Controller ke baad view ya JSON response diya jata hai.
+7-HTTP Kernel final response ko user ko bhejta hai aur middleware optional modifications karte hain.
+
+8-Middleware
+	Middleware ek filter hota hai jo request aur response ke beech mein kaam karta hai. 
+	Jab user kisi route ko access karta hai, middleware us request ko pehle check karta hai. Yeh kuch conditions,
+	jaise authentication ya authorization, check karta hai. Agar sab kuch theek ho, toh request controller tak pohnchti hai.
+
+---------------------------------------------------------------------Service Provider/Facades and Service Container ---------------------------------
+
+1-Service Provider
+	Service Provider ka kaam services ko register aur configure karna hota hai.
+	Yeh batata hai ke koi service Laravel ke Service Container mein kaise available hogi.
+
+2-Service Container
+	Service Container register ki hui services ko Service Provider ke zariye manage karta hai.
+	Jab aap apni service ko kahin application mein use karte hain (e.g., app(YourServiceClass::class)), to Service Container us service ko inject karta hai.
+	ta key aap us service ko use kar sken.
+
+	Custome Example
+		Aapne ek Email Service banai jo mail send karne ka kaam karti hai.
+		Phir aapne ek EmailServiceProvider banaya aur usme apni Email Service ko register kiya.
+		Aapne EmailServiceProvider ko bootstap/providers.php file mein add kiya taake Laravel ko pata chale ke yeh service available hai.
+		Ab Service Container automatically aapki Email Service ko inject karega jab bhi aap usse kahin bhi use karenge.
+		Aap Service Provider ke zariye apni Email Service ko resolve karke mail send kar sakte hain.
+
+
+3-Service Provider Vs Facades:
+		Kisi bhi service ko use karne ke liye, usko pehle Service Provider mein register karna zaroori hota hai. 
+		Service provider ki madad se, Laravel apne Service Container mein service ko register karta hai, 
+		jisse woh service app ke kisi bhi part mein available ho jati hai.
+
+	Facades:
+		Facade ek static shortcut hota hai jo aapko registered service ko easily use karne ka tareeqa deta hai.
+		taake aap us service ko directly static tareeqe se access kar sakein (e.g., DB::table(), Mail::send()). 
+		Facades sirf ek shortcut hain jo underlying service ko access karte hain, jo pehle service provider ke zariye register hoti hai.
+
+------------------------------------------------------------Composer and json/lock----------------------------------------------------------------
+Composer 
+	Composer ek PHP dependency manager hai jo Laravel mein packages aur libraries ko manage karta hai.
+	Yeh automatically dependencies ko install, update, aur load karta hai, jisse aapko manually unko 
+	manage karne ki zarurat nahi padti. Composer version control, third-party libraries ki installation, 
+	aur auto-loading ko asaan banata hai, jo development process ko fast aur efficient bana deta hai.
+
+1-composer.json
+	isme aap apne project ke liye dependencies (libraries ya packages jo aapke project ko chalane ke liye chahiye hoti hain) define karte hain.
+	Autoloading: Yeh define karta hai ke aapke project ki classes kaise load ki jayengi.
+	Scripts: Custom commands bhi yahan define ki ja sakti hain, jo install hone ke baad automatically run hoti hain (jaise application key generate karna).
+
+2-composer.lock
+	ye file aapke dependencies ke exact versions ko lock kar deti hai. 
+	Yeh file ensure karti hai ke har koi jo aapka project clone karega, usse same versions milenge jo aapne use kiye hain.
+
+----------------------------------------------------NPM and packg/lock-------------------------------------------------------
+
+1-NPM 
+	Aik tool hai jo Node.js ke saath aata hai. Yeh JavaScript aur Node.js libraries ko install, manage,
+	aur share karne mein madad karta hai. Laravel aur doosre frameworks mein front-end libraries ko manage karne ke liye iska use hota hai.
+
+2-package.json: 
+	Yeh file aapke project ki dependencies aur settings ko define karti hai.
+
+3-package-lock.json: 
+	Yeh file installed dependencies ke exact versions ko record karti hai, jisse sabhi developers ke liye same setup ho.
+
+4-Node Modules:
+	Yeh folder aapke project ke andar installed libraries ko store karta hai.
+
+	node_modules Laravel mein directly load nahi hoti jab application start hoti hai.
+	npm install se aap dependencies install karte hain, jo Laravel Mix ke zariye compile aur bundle hoti hain.
+	Final assets public folder mein store hoti hain aur web pages mein load hoti hain.
+
+---------------------------------------------------------Eloquent ORM----------------------------------------------
+1-Eloquent ORM
+	Laravel ka ek tool hai jo database ke records ko OOP(php objects) ke zariye se handle karta hai.
+	Isse aap easily database se data retrieve, update, ya delete kar sakte hain bina SQL likhe.
+	Is sa Model Relationship(one to one, one to may etc) bna skty he jis sa data organize  easy accessible hota ha 
+		
+----------------------------------------------------------Artisan---------------------------------------
+1-Artisan Laravel ka command-line tool hai. Iska use aapko application ke tasks ko efficiently perform karne ke liye hota hai,
+ 	jaise database migrations, controllers aur models generate karna, aur tests run karna. 
+	Aap Artisan ke commands se kaafi common tasks easily automate kar sakte hain.
+		For example hm queu job k lie aik command bnaty he jis me kuch code run krna hota ha jo jisy hm timely run kr skty he
+
+--------------------------------------------------Blade Temp engine---------------------------------------
+
+1-Blade Templating Engine Laravel ka tool hai jo HTML aur dynamic content ko manage karne ke liye use hota hai. 
+	Isme simple syntax ke zariye loops, conditions, aur dynamic data inject kiya ja sakta hai. Blade layouts aur components se code reuse
+	karna easy ho jata hai, jisse development fast aur maintainable hoti hai.
