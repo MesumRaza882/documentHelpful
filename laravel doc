@@ -188,26 +188,7 @@ Example	Sending an email when a user is created using UserObserver	Broadcasting 
 	Example			Sending an email when a user is created using UserObserver	Broadcasting a new user registration event 
 												to send emails & logs separately
 
-----------------------------------------------------------Repositiory & Interfaces ---------------------------------------
 
-	Laravel me Repository Pattern aur Interfaces ka use code ko maintainable aur scalable banane ke liye hota hai. 
-	Repository ek layer hoti hai jo direct model queries ko handle karti hai, jabke Interface ek contract define karta hai jo 
-	ensure karta hai ke sari repositories ek specific structure follow karein. Iska faida ye hota hai ke agar future me database logic 
-	change karni ho to sirf repository update karni padegi, controller ya business logic me koi change nahi karna padega
-
-	=> Laravel me Repository ek separate layer hoti hai jo database queries handle karti hai. Yeh controller se direct model calls 
-		ko hata kar code ko clean aur maintainable banati hai.
-
-	=>Contract (Interface) ek blueprint hota hai jo define karta hai ke repository me kaunse methods hone chahiye. 
-		Yeh ensure karta hai ke hum easily repository ka implementation change kar sakein without affecting other parts of the application.
-
-	Example:
-
-	1. Interface (UserRepositoryInterface): Methods define karta hai.
-	2. Repository (UserRepository): Methods implement karta hai.
-	3. Binding (AppServiceProvider): Repository ko interface ke sath bind karta hai.
-	4. Controller (UserController): Dependency Injection se repository ka use karta hai.
--
 --------------------------------------------------------------has(), whereHas(), and with()-----------------
 
 	check if User Has Any Posts $users = User::has('posts')->get();
@@ -227,19 +208,77 @@ Example	Sending an email when a user is created using UserObserver	Broadcasting 
     		});
 	Now, every time LoggerService is used, it retains previous logs.
 
-------------------------------------------------------Policy and Gate-------------------------------------
+----------------------------------------------------------Repositiory & Interfaces ---------------------------------------
+Repository:
+	 Ek design pattern hai jo database queries ko directly model ya controller me likhne ke bajaye ek separate class
+	(repository) me manage karta hai. Ye code ko clean aur maintainable banata hai.
 
-1-Authorization in Laravel controls user access to different parts of an application. Laravel provides Gates and Policies to handle authorization.
-2-A Gate is a simple closure-based authorization mechanism. It checks if a user has permission to perform a specific action.(AuthServiceProvider.php)
-3-A Policy is a dedicated class that contains multiple authorization rules for a specific model.
-	php artisan make:policy PostPolicy		When authorization is model-specific
+Interface:
+	Ek contract hota hai jo define karta hai ke konsi methods kis class me honi chahiye, lekin wo method ka implementation nahi deta.
+
+Dependency Injection:
+	ka matlab hai ek class me doosri class ka object inject karna constructor ke zariye,  taky wo direct us class ke methods use kar sake.
+
+Dependency Injection: With and Without Interface
+	Without Interface (Direct Class Injection)
+		UserRepository class banayi.
+		UserController me UserRepository ka object inject kiya (constructor injection)
+		(UserController directly UserRepository pe depend kar raha hai.
+		Agar hume UserRepository ka koi aur implementation dena ho (ApiUserRepository ya CsvUserRepository), to UserController ka code change karna padega.)
+	With Interface (Best Practice)
+		UserRepositoryInterface banaya.
+		UserRepository class ne UserRepositoryInterface ko implement kiya.
+		UserController ne UserRepositoryInterface ka object inject kiya (instead of UserRepository).
+		Laravel Service Container me bind kiya (AppServiceProvider me).
+			lekin binding faydemand hoti hai, khas tor par jab:
+
+		Multiple Implementations ho sakti hain (e.g., UserRepository aur ApiUserRepository).
+		Loose Coupling chahiye ho, taake agar future me repository change ho to controller ko update na karna pare.
+		Testing me mock repositories ya fake implementations ka istemal karna ho.
 
 
-----------------------------------------------------Accessors & Mutators & casts-------------------------------------
+------------------------------------------------------Policy and Gate(Authorization)-------------------------------------
+
+Gate:
+	Gate ek simple function hota hai jo check karta hai ke koi user kisi specific action ko perform kar sakta hai ya nahi. 
+	Ye mostly choti authorization checks ke liye use hota hai.
+Policy:
+	Policy ek class hoti hai jo kisi specific model ke liye multiple authorization rules define karti hai. 
+	Ye complex authorization logic handle karne ke liye use hoti hai.
+
+🔹 Gate choti aur simple permissions ke liye hota hai.(Authserviceprovider)
+🔹 Policy kisi model ke multiple permissions ko handle karti hai.
+
+
+----------------------------------------------------Model Attributes Main features-------------------------------------
 	
-Accessors and Mutators allow you to modify attributes of a model when retrieving (Accessor) or storing (Mutator) data in Laravel's Eloquent models.
-	get{Attribute}Attribute set{Attribute}Attribute
+Laravel me attributes wo columns hote hain jo database table me mojood hotay hain aur model ke through access kiye jate hain.
 
-Laravel Casts allow automatic conversion of model attributes into specific data types when retrieving or storing data. 
-	This makes it easier to work with JSON, dates, arrays, and custom objects.
+Mutator:
+	wo function hota ha jo attributes ko database me save krne sa pehle modify krta ha 
+Accessor:
+	wo function hota ha jo attributes ko retrieve hone k bad modify krta ha
+Casts: 
+	database me save hone aur retrieve hone waly attributes ko automatically ek specific data type me convert karta hai.
 
+Hidden & Visible Attributes:
+	Agar aap kuch attributes ko hide ya show karna chahein jab model ka data JSON ya array me convert ho.
+		protected $visible = ['id', 'name', 'email'];  protected $hidden = ['password', 'remember_token'];  
+
+Appended Attributes:
+	Agar aap model me koi naya attribute create karna chahein jo actual database me mojood na ho, lekin dynamically calculate ho.
+		protected $appends = ['full_name'];
+	
+Fillable & Guarded Attributes:
+	Agar aap mass assignment (bulk data insert/update) ka control chahte hain to fillable ya guarded ka use karte hain.
+		protected $guarded = ['role'];  			(Sirf role field mass assignment se protected rahegi, baki sab allow honge.
+		protected $fillable = ['name', 'email', 'password'];  	(Sirf ye fields User::create($data) me fill ho sakti hain.
+
+Default Attribute Values:
+	Agar aap kisi attribute ka default value set karna chahte hain jab model create ho raha ho.
+		protected $attributes = [  'status' => 'active',  ];  
+
+Query Scopes (Global & Local):
+	Agar aap frequently used queries ko model ke andar define karna chahte hain.
+		Local Scope (Agar aap kisi query ko baar baar likhne se bachna chahte hain to Local Scope use karte hain.)
+		Global Scope (Hamesha automatic apply hone wali queries ke liye)
