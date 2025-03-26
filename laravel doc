@@ -91,25 +91,7 @@ Composer
 	npm install se aap dependencies install karte hain, jo Laravel Mix ke zariye compile aur bundle hoti hain.
 	Final assets public folder mein store hoti hain aur web pages mein load hoti hain.
 
----------------------------------------------------------Eloquent ORM & Relations----------------------------------------------
-1-Eloquent ORM
-	Laravel ka ek tool hai jo database ke records ko OOP(php objects) ke zariye se handle karta hai.
-	Isse aap easily database se data retrieve, update, ya delete kar sakte hain bina SQL likhe.
-	Is sa Model Relationship(one to one, one to may etc) bna skty he jis sa data organize  easy accessible hota ha 
 
-hasOne: One-to-one relation (User has one Profile).
-hasMany: One-to-many relation (User has many Posts).
-belongsTo: Inverse of hasOne or hasMany (Post belongs to a User).
-belongsToMany: Many-to-many relation (User belongs to many Roles).
-One-to-One Through Relationship
-	A Country has one CapitalCity, but the capital is stored in the Cities table, and we must reach it via the States table.
-One-to-Many Through Relationship
-	A Country has many Cities, but we access them through States.
-
-2-Polymorph and one to any
-	One-to-Many	Two specific models	Posts and Comments (Only posts have comments)
-	Polymorphic	One model with multiple related models	Posts & Videos share comments table
-		
 ----------------------------------------------------------Artisan---------------------------------------
 1-Artisan Laravel ka command-line interface (CLI) hai jo aapko apne application ke sath commands ke through interact karne mein madad deta hai.
 Ye common tasks jaise migrations, caching, aur zyada ke liye built-in commands provide karta hai.
@@ -121,9 +103,14 @@ Ye common tasks jaise migrations, caching, aur zyada ke liye built-in commands p
 	karna easy ho jata hai, jisse development fast aur maintainable hoti hai.
 
 --------------------------------------------------------Eager/Lazy expilict loading-------------------------------------------------
-	Explicit loading is used when you already have a model instance and want to load its relationships later,
-		can be useful when you conditionally need($user->load('posts'); )
-	Lazy loading executes separate queries for each relationship, while Eager loading fetches all relationships in one query.)
+	Explicit Loading
+		Explicit loading tab use hoti hai jab aapke paas pehle se ek model instance mojood ho aur aap uski 
+		relationships baad me load karna chahein. Ye tab useful hoti hai jab conditional loading ki zaroorat ho.($user->load('posts'); )
+
+	Lazy loading:
+		Har relationship ke liye alag query execute hoti hai.
+	Eager Loding:
+		Ek hi query me sari relationships fetch ho jati hain.
 	Post::with('comments')->get(); Eager loading
 
 ---------------------------------------------------------Migration-----------------------------------------------------------
@@ -132,62 +119,6 @@ Ye common tasks jaise migrations, caching, aur zyada ke liye built-in commands p
 	Isse aap apne database ke changes ko easily share kar sakte hain aur multiple developers ke beech consistency bana sakte hain.
 		up(): Is method mein hum changes define karte hain jo database mein apply honge, jaise posts table ka creation.
 		for example, table ko delete karna ho), to aap down() method use karte hain, down() method ko migration rollback karne ke liye use kiya jata hai. 
-
-----------------------------------------------	Laravel Events, Listeners, Queues, and Broadcasting --------------------------
-
-1-Laravel Events and Listeners ka use real-time notifications, background processing, or system actions ko handle karne ke liye hota hai.
-2-Laravel asynchronous processing ka istemal karta hai Queues aur Events & Listeners ke through, jisse 
-	slow tasks (jaise email sending Job Running in the Queue,  notifications, data processing) ko background mein execute kiya jata hai.
-
-Events		Trigger actions on specific events		When a user registers, fire UserRegistered event
-Listeners	Respond to events by executing logic		SendWelcomeEmail listener sends an email
-Queues		Run tasks in background to improve performance	Email sending runs asynchronously in queue
-Broadcasting	Send real-time updates using WebSockets		New chat messages are instantly displayed to users
-Job 		A Job is a class that defines a specific task to be executed in the queue. by implements ShouldQueue for queue for background otherwise run as weel.
-
-	Queue Driver in Laravel(QUEUE_CONNECTION=database  # Change to 'redis', 'sync', etc.)
-		A Queue Driver in Laravel determines where the queued jobs will be stored and processed.
-		sync	Runs jobs immediately (no queue)
-		database	Stores jobs in the database (good for small apps)
-		redis	Fast in-memory queue (best for high-performance apps)
-		sqs	Amazon SQS (scalable, cloud-based queue)
-
-Job Chaining in Laravel allows multiple queued jobs to execute in a specific sequence. 
-	If one job fails, the remaining jobs will not execute
-		Bus::chain([
-		    	new SendWelcomeEmail($user),
-	    		new GenerateUserProfile($user),
-    			new NotifyAdmin($user)
-		])->catch(function ($e) {
-    			Log::error('Job failed: ' . $e->getMessage());
-		})->dispatch();
-
-
-	Job dispatch()				Not Executes Immediately	Background tasks
-	Job dispatchSync()/dispatchNow()	Executes Immediately		Immediate execution
-
-Job Batching in Laravel allows you to dispatch multiple jobs simultaneously,
-	Suppose we need to send emails to 10,000 users. Instead of sending them one by one (slow process)
-
------------------------------------------------- Observer and Event Listerenr--------------------------------------
-
-Observers are used to listen to Eloquent model events (e.g., created, updated, deleted).
-They allow us to execute logic before or after a model operation.
-They are specific to models and help keep database-related logic separate from controllers.
-
-Scope	Works only with models	Works application-wide
-Use Case	Used for model lifecycle events (created, updated, deleted)	Used for any custom event (user registration, email sending, etc.)
-Multiple Listeners?	No, single observer per model	Yes, multiple listeners can listen to the same event
-Queued Jobs?	No built-in support for queues	Yes, listeners can be queued (ShouldQueue)
-Example	Sending an email when a user is created using UserObserver	Broadcasting a new user registration event to send emails & logs separately
-
-	Scope			Works only with models						Works application-wide
-	Use Case		Used for model lifecycle events (created, updated, deleted)	Used for any custom event (user registration, email sending, etc.)
-	Multiple Listeners?	No, single observer per model					Yes, multiple listeners can listen to the same event
-	Queued Jobs?		No built-in support for queues					Yes, listeners can be queued (ShouldQueue)
-	Example			Sending an email when a user is created using UserObserver	Broadcasting a new user registration event 
-												to send emails & logs separately
-
 
 --------------------------------------------------------------has(), whereHas(), and with()-----------------
 
@@ -257,7 +188,7 @@ Laravel me attributes wo columns hote hain jo database table me mojood hotay hai
 Mutator:
 	wo function hota ha jo attributes ko database me save krne sa pehle modify krta ha 
 Accessor:
-	wo function hota ha jo attributes ko retrieve hone k bad modify krta ha
+	wo function hota ha jo attributes ko retrieve krne k bad modify krta ha
 Casts: 
 	database me save hone aur retrieve hone waly attributes ko automatically ek specific data type me convert karta hai.
 
@@ -282,3 +213,102 @@ Query Scopes (Global & Local):
 	Agar aap frequently used queries ko model ke andar define karna chahte hain.
 		Local Scope (Agar aap kisi query ko baar baar likhne se bachna chahte hain to Local Scope use karte hain.)
 		Global Scope (Hamesha automatic apply hone wali queries ke liye)
+
+
+----------------------------------------------	Laravel Events, Listeners, Queues, and Broadcasting --------------------------
+
+1-Laravel Events and Listeners ka use system actions,  real-time notifications, or background processing ko handle karne ke liye hota hai.
+
+Events		Koi khas action hone par trigger hotay hain			When a user registers, fire UserRegistered event
+Listeners	Event hone ke bad koi logic execute karte hain 			SendWelcomeEmail listener sends an email	
+		Listener tabhi chalega jab uska event fire hoga
+		(background processing, logging, notifications aur other tasks)
+Queues		Tasks ko background me run karke performan improve krte hain	Email sending runs asynchronously in queue
+Broadcasting	WebSockets ka use karke real-time updates bhejne ke liye	New chat messages are instantly displayed to users
+
+Job:
+	Job ek background task hota hai jo queue system me daal kar asynchronously 
+	execute hota hai. Jobs ka use hum heavy tasks (like email sending, PDF generation, database updates)
+	ko non-blocking banane ke liye karte hain.
+	Examp: User register hoa tu directly job call kr lo (SendWelcomeEmail::dispatch($user))
+		background me job chlana command k through (daily stripe payment status update krna)
+
+	Queue Driver in Laravel(QUEUE_CONNECTION=database  # Change to 'redis', 'sync', etc.)
+		A Queue Driver in Laravel determines where the queued jobs will be stored and processed.
+		sync	Runs jobs immediately (no queue)
+		database	Stores jobs in the database (good for small apps)
+		redis	Fast in-memory queue (best for high-performance apps)
+		sqs	Amazon SQS (scalable, cloud-based queue)
+
+Job Chaining in Laravel allows multiple queued jobs to execute in a specific sequence. 
+	If one job fails, the remaining jobs will not execute
+		Bus::chain([
+		    	new SendWelcomeEmail($user),
+	    		new GenerateUserProfile($user),
+    			new NotifyAdmin($user)
+		])->catch(function ($e) {
+    			Log::error('Job failed: ' . $e->getMessage());
+		})->dispatch();
+
+
+	Job dispatch()				Not Executes Immediately	Background tasks
+	Job dispatchSync()/dispatchNow()	Executes Immediately		Immediate execution
+
+Job Batching in Laravel allows you to dispatch multiple jobs simultaneously,
+	Suppose we need to send emails to 10,000 users. Instead of sending them one by one (slow process)
+
+------------------------------------------------ Observers--------------------------------------
+
+Observers:
+	Eloquent model ke events (e.g., created, updated, deleted) ko listen karne ke liye use hote hain.
+	Yeh humein kisi model operation ke pehle ya baad extra logic execute karne ki sahulat dete hain.
+	Observers specific models ke liye hote hain aur database-related logic ko controllers se separate rakhne me madad dete hain.
+
+	Scope			Works only with models						Works application-wide
+	Use Case		Used for model lifecycle events (created, updated, deleted)	Used for any custom event (user registration, email sending, etc.)
+	Multiple Listeners?	No, single observer per model					Yes, multiple listeners can listen to the same event
+	Queued Jobs?		No built-in support for queues					Yes, listeners can be queued (ShouldQueue)
+	Example			Sending an email when a user is created using UserObserver	Broadcasting a new user registration event 
+												
+
+
+---------------------------------------------------------Eloquent ORM & Relations----------------------------------------------
+1-Eloquent ORM
+	Laravel ka ek tool hai jo database ke records ko OOP(php objects) ke zariye se handle karta hai.
+	Isse aap easily database se data retrieve, update, ya delete kar sakte hain bina SQL likhe.
+
+One-to-One (hasOne & belongsTo)
+	Jab ek model ka sirf ek record doosre model me ho.
+
+One-to-Many (hasMany & belongsTo)
+	Jab ek model ke multiple records doosre model me hon.
+
+Many-to-Many (belongsToMany)
+	Jab ek model ke multiple records doosre model se connected hon aur vice versa.
+	Is relation ke liye pivot table ka use hota hai.
+
+One-to-One Through (hasOneThrough)
+	Jab ek model indirectly doosre model se connected ho aur hume beech wale model ke through access karna ho.
+
+One-to-Many Through (hasManyThrough)
+	Jab ek model indirectly multiple records doosre model me access kare.
+
+Has-One-of-Many Relationship
+	Jab ek model ka ek aur model se multiple records ka relation ho, lekin hume latest ya specific record chahiye ho.
+
+Has-Many-Through with Condition
+	Jab ek model indirect relation me ho, lekin filtered results chahiye ho.
+
+Polymorphic Relationships
+	Jab ek single table multiple models ke saath relationship share kare.
+	Useful for scenarios like comments, images, likes, etc.
+
+One-to-Many (Polymorphic)
+	Jab multiple models ek hi table ke records share karein.
+
+Many-to-Many (Polymorphic)
+	Jab ek many-to-many relation multiple models ke saath share ho.
+
+Self Referencing Relationship (Recursive Relationship)
+	Jab ek model khud se hi related ho, yani ek parent-child structure ho jaise category-subcategory ya employees-hierarchy.
+	Example: Ek Category model jo parent aur child categories manage kare.
