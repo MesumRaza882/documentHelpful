@@ -26,6 +26,11 @@ Laravel me .htaccess ek configuration file hai jo Apache server par URL rewritin
 4. Request Routing (Route Matching)
 	Request ko Laravel routes (routes/web.php ya routes/api.php) ke andar define kiye gaye controller ya closure se match kiya jata hai.
 	Controller ya closure decide karta hai ke request ka response kya hoga.
+POST → Naya record create karta hai.
+
+PATCH → Existing record ko partially update karta hai (sirf wahi fields jo send ki gayi hain).
+
+PUT bhi update ke liye hota hai, lekin yeh complete record replace karta hai.
 
 5. Controller (Business Logic Execution)
 	Controller business logic ko process karta hai.
