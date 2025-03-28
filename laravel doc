@@ -295,7 +295,9 @@ Observers:
 ---------------------------------------------------------Eloquent ORM & Relations----------------------------------------------
 1-Eloquent ORM
 	Laravel ka ek tool hai jo database ke records ko OOP(php objects) ke zariye se handle karta hai.
-	Isse aap easily database se data retrieve, update, ya delete kar sakte hain bina SQL likhe.
+	Isse aap easily 
+Ye models ka use kar ke CRUD operations ko asaan aur readable banata hai, bina raw SQL queries likhne ke.
+database se data retrieve, update, ya delete kar sakte hain bina SQL likhe.
 
 One-to-One (hasOne & belongsTo)
 	Jab ek model ka sirf ek record doosre model me ho.
