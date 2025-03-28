@@ -5,6 +5,7 @@ Laravel Lifecycle (Request to Response Flow)
 	Laravel ki main entry point file hai.
 	Yeh directly run nahi hoti, balki web server (Apache ya Nginx) ke through request handle karti hai.
 	Yeh request ko Laravel application ke core system tak forward karti hai.
+Laravel me .htaccess ek configuration file hai jo Apache server par URL rewriting, security, aur performance optimization ke liye use hoti hai. Ye saari requests ko public/index.php par forward karti hai taki Laravel ka routing system sahi kaam kare.
 
 2. vendor/autoload.php (Composer Autoloading System)
 	Laravel me Composer ke zariye generate hone wali file hai.
