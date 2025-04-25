@@ -5,12 +5,11 @@ Laravel Lifecycle (Request to Response Flow)
 	Laravel ki main entry point file hai.
 	Yeh directly run nahi hoti, balki web server (Apache ya Nginx) ke through request handle karti hai.
 	Yeh request ko Laravel application ke core system tak forward karti hai.
-Laravel me .htaccess ek configuration file hai jo Apache server par URL rewriting, security, aur performance optimization ke liye use hoti hai. Ye saari requests ko public/index.php par forward karti hai taki Laravel ka routing system sahi kaam kare.
 
 2. vendor/autoload.php (Composer Autoloading System)
 	Laravel me Composer ke zariye generate hone wali file hai.
 	Yeh application ke PHP classes, services, controllers, models, event listeners, jobs, queues, email gateways, aur doosray components ko automatically load karti hai.
-	composer.json me jo third-party libraries define hoti hain, unko bhi yeh load karti hai, taake manually include karne ki zaroorat na ho.\
+	composer.json me jo third-party libraries define hoti hain, unko bhi yeh load karti hai, taake manually include karne ki zaroorat na ho.
 3. bootstrap/app.php (Application Bootstrapping)
 	Laravel application ko initialize karne wali file hai.
 	Isme zaroori services set up hoti hain, jaise:
@@ -26,11 +25,7 @@ Laravel me .htaccess ek configuration file hai jo Apache server par URL rewritin
 4. Request Routing (Route Matching)
 	Request ko Laravel routes (routes/web.php ya routes/api.php) ke andar define kiye gaye controller ya closure se match kiya jata hai.
 	Controller ya closure decide karta hai ke request ka response kya hoga.
-POST → Naya record create karta hai.
-
-PATCH → Existing record ko partially update karta hai (sirf wahi fields jo send ki gayi hain).
-
-PUT bhi update ke liye hota hai, lekin yeh complete record replace karta hai.
+	Agar route change ho jaye to sirf route file update karni padegi, templates automatically work karenge.(Reverse Routing)
 
 5. Controller (Business Logic Execution)
 	Controller business logic ko process karta hai.
@@ -51,17 +46,45 @@ Middleware optional modifications bhi kar sakta hai, jaise response headers modi
 	Middleware authorization ya authentication check karne ke liye use hota hai.
 	Agar request valid ho, toh yeh controller tak pohchti hai, warna reject ho sakti hai.
 
+------------------------------------------------------------------Sessions and Cookies--------------------------
+
+A session:
+	 Session ek temporary storage hai jo multiple requests ke dauraan user ka data server par store karti hai.
+	 Laravel sessions server-side hoti hain aur har user ke liye ek unique session ID assign hoti hai.
+	📌 Key Features of Sessions:
+	Stores data on the server (File, Database, Cache, Redis, etc.).
+
+	Data persists as long as the session is active (until expiry or logout).
+	Secure, as data is not stored in the browser.(Use sessions for user authentication, shopping carts, or temporary data storage.)
+
+A cookie:
+	 Cookie ek chhota data piece hai jo user ke browser me store hota hai. Yeh session khatam hone ke baad bhi persist kar sakta hai, 
+	jab tak iska expiration time nahi aata.
+
+	📌 Key Features of Cookies:
+	Stored on the client-side (browser).
+
+	Can have a custom expiration time.
+	Used for remember me, tracking, or authentication.(Use cookies for "Remember Me" functionality, language preferences, or tracking user visits.)
+
 
 ---------------------------------------------------------------------Service Provider/Facades and Service Container ---------------------------------
 
 1-Service Provider
 	Service Provider ka kaam services ko register aur configure karna hota hai.
 	Yeh batata hai ke koi service Laravel ke Service Container mein kaise available hogi.
+	Register() 
+	Agar kisi class ya service ko container me bind karna ho → register() in service provider which we craete for any service 
+		or Sirf config/app.php me ek dafa Service Provider add karna zaroori hota hai.
+	Agar hum service provider kisi service k lie na bnae tu hum (AppServiceProvider.php Mein Register Karna) hota ha 
 
 2-Service Container
-	Service Container register ki hui services ko Service Provider ke zariye manage karta hai.
+	Service Container wo core mechanism hai jo registered services ko manage karta hai. Laravel ka Dependency Injection system isi ke zariye kaam karta ha
 	Jab aap apni service ko kahin application mein use karte hain (e.g., app(YourServiceClass::class)), to Service Container us service ko inject karta hai.
 	ta key aap us service ko use kar sken.
+
+	Boot()
+		Agar application boot hone ke baad koi event ya middleware chalana ho → boot()
 
 	Custome Example
 		Aapne ek Email Service banai jo mail send karne ka kaam karti hai.
@@ -80,6 +103,8 @@ Middleware optional modifications bhi kar sakta hai, jaise response headers modi
 		Facade ek static shortcut hota hai jo aapko registered service ko easily use karne ka tareeqa deta hai.
 		taake aap us service ko directly static tareeqe se access kar sakein (e.g., DB::table(), Mail::send()). 
 		Facades sirf ek shortcut hain jo underlying service ko access karte hain, jo pehle service provider ke zariye register hoti hai.
+
+
 
 ------------------------------------------------------------Composer and json/lock----------------------------------------------------------------
 Composer 
@@ -126,6 +151,18 @@ Ye common tasks jaise migrations, caching, aur zyada ke liye built-in commands p
 1-Blade Templating Engine Laravel ka tool hai jo HTML aur dynamic content ko manage karne ke liye use hota hai. 
 	Isme simple syntax ke zariye loops, conditions, aur dynamic data inject kiya ja sakta hai. Blade layouts aur components se code reuse
 	karna easy ho jata hai, jisse development fast aur maintainable hoti hai.
+
+@yield 
+	ek placeholder hota hai jo child views se content receive karta hai. Ye layout files me use hota hai jahan humein dynamically content inject karna ho.
+	<title>@yield('title')</title>
+	Child View -> @section('title', 'Home Page')
+
+@section ka use @yield ke andar content inject karne ke liye hota hai.
+@extends ka use kisi parent layout file ko inherit karne ke liye hota hai.
+@push & @stack (Dynamic Script/Style Injection)
+	Agar humein kisi specific page par extra CSS ya JavaScript inject karni ho to @push aur @stack use hota hai.
+
+lade Components (x-component)	Reusable UI elements create karein
 
 --------------------------------------------------------Eager/Lazy expilict loading-------------------------------------------------
 	Explicit Loading
@@ -300,9 +337,7 @@ Observers:
 ---------------------------------------------------------Eloquent ORM & Relations----------------------------------------------
 1-Eloquent ORM
 	Laravel ka ek tool hai jo database ke records ko OOP(php objects) ke zariye se handle karta hai.
-	Isse aap easily 
-Ye models ka use kar ke CRUD operations ko asaan aur readable banata hai, bina raw SQL queries likhne ke.
-database se data retrieve, update, ya delete kar sakte hain bina SQL likhe.
+	Isse aap easily database se data retrieve, update, ya delete kar sakte hain bina SQL likhe.
 
 One-to-One (hasOne & belongsTo)
 	Jab ek model ka sirf ek record doosre model me ho.
@@ -339,3 +374,24 @@ Many-to-Many (Polymorphic)
 Self Referencing Relationship (Recursive Relationship)
 	Jab ek model khud se hi related ho, yani ek parent-child structure ho jaise category-subcategory ya employees-hierarchy.
 	Example: Ek Category model jo parent aur child categories manage kare.
+
+--------------------------------------------------Guards/ Throttling  --------------------------------------------
+
+Laravel me guards authentication ka tarika batate hain. Ye decide karte hain ke user ka authentication session, 
+	token, ya kisi aur method se hoga. Laravel me default web aur api guards hote hain.
+
+Agar aap admin aur customer ke liye alag guards chahte hain, to config/auth.php me define karein:
+
+Throttling 
+	ka matlab hai request limit lagana taake koi user ya bot excessive requests na bhej sake aur server overload ya brute force attacks se bachaya ja sake.
+	Agar koi user limit cross karega to 429 Too Many Requests error milegi.
+	Customizing Rate Limits in Laravel (Kernel.php)
+
+
+-----------------------------------------------------Encryption and dec-----------------------------------------
+
+Encryption ka matlab hai data ko secure format me convert karna taake unauthorized log usay read na kar sakein.
+ Laravel me encrypt() function se data encrypt hota hai.
+
+Decryption 
+	ka matlab hai encrypted data ko wapas original format me lana. Laravel me decrypt() function se data decrypt hota hai.
